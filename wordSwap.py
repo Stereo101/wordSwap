@@ -1,7 +1,11 @@
 import sys
 from heapq import *
 
+##I am aware this isn't true
+##It just needs to be bigger than the dictionary is in size
 INFINITY = 99999999
+
+
 
 class wordNode:
 	def __lt__(self,other):
@@ -24,29 +28,24 @@ class wordNode:
 		return False
 
 def dijkstra(wordA,wordB,wordDict):
-	nodeHold = 0
 	start = wordDict[wordA]
 	goal = wordDict[wordB]
-	unvisited = []
-	heapify(unvisited)
 	start.dist = 0
-	for n in wordDict.values():
-		heappush(unvisited,n)
-
-	
-	while len(unvisited)!=0:
-		u = heappop(unvisited)
-		if(u.dist == INFINITY):
-			return False
-		print(u.word,u.dist)
+	frontier = []
+	heappush(frontier,start)
+	visited = {}	
+	while len(frontier)!=0:
+		u = heappop(frontier)
+		visited[u] = True
+		##print(u.word,u.dist)
 		for edge in u.adj:
 			alt = u.dist + 1
 			if alt < edge.dist:
 				edge.dist = alt
 				edge.prev = u
-		heapify(unvisited)
-
-		if goal not in unvisited:
+			if(edge not in visited and edge not in frontier):
+				heappush(frontier,edge)
+		if u is goal:
 			return True
 
 def buildWordGraphDict(dictFile,wordLength):
@@ -64,7 +63,7 @@ def buildWordGraphDict(dictFile,wordLength):
 
 
 if(len(sys.argv) < 3):
-	print("Enter 2 words as command line args")
+	print("Enter 2 words of equal size as command line args")
 	sys.exit()
 
 if(len(sys.argv[1]) != len(sys.argv[2])):
