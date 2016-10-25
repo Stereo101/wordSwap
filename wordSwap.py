@@ -5,16 +5,10 @@ from heapq import *
 ##It just needs to be bigger than the dictionary is in size
 INFINITY = 99999999
 
-
-
 class wordNode:
-	def __lt__(self,other):
-		return self.dist < other.dist
 	def __init__(self,word):
 		self.word = word
 		self.adj = []
-		self.dist = INFINITY
-		self.prev = 0
 
 	def addEdge(self,wordNodePointer):
 		if(wordNodePointer not in self.adj):
@@ -28,25 +22,34 @@ class wordNode:
 		return False
 
 def dijkstra(wordA,wordB,wordDict):
-	start = wordDict[wordA]
-	goal = wordDict[wordB]
-	start.dist = 0
 	frontier = []
-	heappush(frontier,start)
-	visited = {}	
+	heappush(frontier,wordDict[wordA])
+	visited = {}
+	prev = {}
+	dist = {}
+	dist[wordA] = 0	
+	prev[wordA] = wordDict[wordA]
+	goal = wordDict[wordB]
 	while len(frontier)!=0:
 		u = heappop(frontier)
 		visited[u] = True
-		##print(u.word,u.dist)
 		for edge in u.adj:
-			alt = u.dist + 1
-			if alt < edge.dist:
-				edge.dist = alt
-				edge.prev = u
+			if edge.word not in dist:
+				dist[edge.word] = INFINITY
+			alt = dist[u.word] + 1
+			if alt < dist[edge.word]:
+				dist[edge.word] = alt
+				prev[edge.word] = u
 			if(edge not in visited and edge not in frontier):
 				heappush(frontier,edge)
-		if u is goal:
-			return True
+		if wordB in prev:
+			result = []
+			u = goal
+			while u.word != wordA:
+				result.insert(0,u.word)
+				u = prev[u.word]
+			return  result
+	return False
 
 def buildWordGraphDict(dictFile,wordLength):
 	wordDict = {}
@@ -66,38 +69,31 @@ def buildWordGraphDict(dictFile,wordLength):
 	del edgeDict
 	return wordDict
 
+if __name__ == "__main__":
+	if(len(sys.argv) < 3):
+		print("Enter 2 words of equal size as command line args")
+		sys.exit()
 
-if(len(sys.argv) < 3):
-	print("Enter 2 words of equal size as command line args")
-	sys.exit()
+	if(len(sys.argv[1]) != len(sys.argv[2])):
+		print("Words are a differnt length, not possible")
+		sys.exit()
 
-if(len(sys.argv[1]) != len(sys.argv[2])):
-	print("Words are a differnt length, not possible")
-	sys.exit()
+	wordLength = len(sys.argv[1])
 
-wordLength = len(sys.argv[1])
+	wordDict = buildWordGraphDict("wordlist",wordLength)
+	if(sys.argv[1] not in wordDict):
+		print(sys.argv[1],"is not in this dictionary")
+		sys.exit()
+	if(sys.argv[2] not in wordDict):
+		print(sys.argv[2],"is not in this dictionary")
+		sys.exit()
 
-wordDict = buildWordGraphDict("wordlist",wordLength)
-wordCount = len(wordDict)
-if(sys.argv[1] not in wordDict):
-	print(sys.argv[1],"is not in this dictionary")
-	sys.exit()
-if(sys.argv[2] not in wordDict):
-	print(sys.argv[2],"is not in this dictionary")
-	sys.exit()
+	print("%d words of length %d were loaded" % (len(wordDict),wordLength))
+	result = dijkstra(sys.argv[1],sys.argv[2],wordDict)
 
-print(wordCount,"words of length",wordLength,"were loaded.")
-dijkstra(sys.argv[1],sys.argv[2],wordDict)
-
-if(wordDict[sys.argv[2]].dist == INFINITY):
-	print("No possible path")
-else:
-	print("The distance between",sys.argv[1],"and",sys.argv[2],"is",wordDict[sys.argv[2]].dist)
-	path = []
-	cur = wordDict[sys.argv[2]]
-	while(cur != wordDict[sys.argv[1]]):
-		path.insert(0,cur.word)
-		cur=cur.prev
-	print(sys.argv[1])
-	for w in path:
-		print(w)
+	if(type(result) is not type([])):
+		print("No possible path")
+	else:
+		print("The distance between %s and %s is %d" % (sys.argv[1],sys.argv[2],len(result)))
+		for w in result:
+			print(w)
