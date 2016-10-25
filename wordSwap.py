@@ -50,15 +50,20 @@ def dijkstra(wordA,wordB,wordDict):
 
 def buildWordGraphDict(dictFile,wordLength):
 	wordDict = {}
+	edgeDict = {}
 	for w in open(dictFile,"r").read().splitlines():
 		if(len(w) == wordLength):
 			wordDict[w] = wordNode(w)
 			for i in range(len(w)):
-				for letter in range(0,26):
-					whold = w[0:i] + chr(letter+97) + w[i+1:wordLength]
-					if(whold in wordDict and not wordDict[w].hasEdge(whold) and whold != w):
-						wordDict[w].addEdge(wordDict[whold])
-						wordDict[whold].addEdge(wordDict[w])
+				whold = w[0:i] + '*' + w[i+1:wordLength]
+				if(whold not in edgeDict):
+					edgeDict[whold] = [w]
+				else:
+					for e in edgeDict[whold]:
+						wordDict[w].addEdge(wordDict[e])
+						wordDict[e].addEdge(wordDict[w])
+					edgeDict[whold].append(w)
+	del edgeDict
 	return wordDict
 
 
