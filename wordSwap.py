@@ -9,7 +9,10 @@ class wordNode:
 	def __init__(self,word):
 		self.word = word
 		self.adj = []
-
+	
+	def __lt__(self,other):
+		return False
+	
 	def addEdge(self,wordNodePointer):
 		if(wordNodePointer not in self.adj):
 			self.adj.append(wordNodePointer)
@@ -23,7 +26,7 @@ class wordNode:
 
 def dijkstra(wordA,wordB,wordDict):
 	frontier = []
-	heappush(frontier,wordDict[wordA])
+	heappush(frontier,(0,wordDict[wordA]))
 	visited = {}
 	prev = {}
 	dist = {}
@@ -31,7 +34,7 @@ def dijkstra(wordA,wordB,wordDict):
 	prev[wordA] = wordDict[wordA]
 	goal = wordDict[wordB]
 	while len(frontier)!=0:
-		u = heappop(frontier)
+		u = heappop(frontier)[1]
 		visited[u] = True
 		for edge in u.adj:
 			if edge.word not in dist:
@@ -41,7 +44,7 @@ def dijkstra(wordA,wordB,wordDict):
 				dist[edge.word] = alt
 				prev[edge.word] = u
 			if(edge not in visited and edge not in frontier):
-				heappush(frontier,edge)
+				heappush(frontier,(dist[edge.word],edge))
 		if wordB in prev:
 			result = []
 			u = goal
@@ -75,7 +78,7 @@ if __name__ == "__main__":
 		sys.exit()
 
 	if(len(sys.argv[1]) != len(sys.argv[2])):
-		print("Words are a differnt length, not possible")
+		print("Words are a different length, not possible")
 		sys.exit()
 
 	wordLength = len(sys.argv[1])
