@@ -51,6 +51,7 @@ def dijkstra(wordA,wordB,wordDict):
 			while u.word != wordA:
 				result.insert(0,u.word)
 				u = prev[u.word]
+			result.insert(0,wordA)
 			return  result
 	return False
 
@@ -84,12 +85,10 @@ if __name__ == "__main__":
 	wordLength = len(sys.argv[1])
 
 	wordDict = buildWordGraphDict("wordlist",wordLength)
-	if(sys.argv[1] not in wordDict):
-		print(sys.argv[1],"is not in this dictionary")
-		sys.exit()
-	if(sys.argv[2] not in wordDict):
-		print(sys.argv[2],"is not in this dictionary")
-		sys.exit()
+	for arg in sys.argv[1:]:
+		if(arg not in wordDict):
+			print("%s is not in this dictionary" % arg)
+			sys.exit()
 
 	print("%d words of length %d were loaded" % (len(wordDict),wordLength))
 	result = dijkstra(sys.argv[1],sys.argv[2],wordDict)
@@ -97,6 +96,6 @@ if __name__ == "__main__":
 	if(type(result) is not type([])):
 		print("No possible path")
 	else:
-		print("The distance between %s and %s is %d" % (sys.argv[1],sys.argv[2],len(result)))
+		print("The distance between %s and %s is %d" % (sys.argv[1],sys.argv[2],len(result)-1))
 		for w in result:
 			print(w)
