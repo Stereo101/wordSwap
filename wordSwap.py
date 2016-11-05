@@ -1,5 +1,5 @@
 import sys
-from heapq import *
+from collections import OrderedDict
 
 ##I am aware this isn't true
 ##It just needs to be bigger than the dictionary is in size
@@ -8,43 +8,42 @@ INFINITY = 99999999
 class wordNode:
 	def __init__(self,word):
 		self.word = word
-		self.adj = []
+		self.adj = {}
 	
 	def __lt__(self,other):
 		return False
 	
 	def addEdge(self,wordNodePointer):
-		if(wordNodePointer not in self.adj):
-			self.adj.append(wordNodePointer)
+		if(wordNodePointer.word not in self.adj):
+			self.adj[wordNodePointer.word] = wordNodePointer
 			return True
 		return False
 
 	def hasEdge(self,word):
-		for e in self.adj:
-			if(e.word == word): return True
-		return False
+		return word in self.adj
 
 def dijkstra(wordA,wordB,wordDict):
-	frontier = []
-	heappush(frontier,(0,wordDict[wordA]))
+	frontier = OrderedDict()
+	frontier[wordA] = True
 	visited = {}
 	prev = {}
 	dist = {}
 	dist[wordA] = 0	
 	prev[wordA] = wordDict[wordA]
 	goal = wordDict[wordB]
-	while len(frontier)!=0:
-		u = heappop(frontier)[1]
-		visited[u] = True
+	while frontier:
+		u = wordDict[frontier.popitem(last=False)[0]]
+		visited[u.word] = True
 		for edge in u.adj:
-			if edge.word not in dist:
-				dist[edge.word] = INFINITY
+			edgeP = wordDict[edge]
+			if edge not in dist:
+				dist[edge] = INFINITY
 			alt = dist[u.word] + 1
-			if alt < dist[edge.word]:
-				dist[edge.word] = alt
-				prev[edge.word] = u
+			if alt < dist[edge]:
+				dist[edge] = alt
+				prev[edge] = u
 			if(edge not in visited and edge not in frontier):
-				heappush(frontier,(dist[edge.word],edge))
+				frontier[edge] = True
 		if wordB in prev:
 			result = []
 			u = goal
