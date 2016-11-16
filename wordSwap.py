@@ -27,8 +27,6 @@ def dijkstra(wordA,wordB,wordDict):
 	frontier[wordA] = True
 	visited = {}
 	prev = {}
-	dist = {}
-	dist[wordA] = 0	
 	prev[wordA] = wordDict[wordA]
 	goal = wordDict[wordB]
 	while frontier:
@@ -36,11 +34,7 @@ def dijkstra(wordA,wordB,wordDict):
 		visited[u.word] = True
 		for edge in u.adj:
 			edgeP = wordDict[edge]
-			if edge not in dist:
-				dist[edge] = INFINITY
-			alt = dist[u.word] + 1
-			if alt < dist[edge]:
-				dist[edge] = alt
+			if edge not in prev:
 				prev[edge] = u
 			if(edge not in visited and edge not in frontier):
 				frontier[edge] = True
@@ -69,7 +63,6 @@ def buildWordGraphDict(dictFile,wordLength):
 						wordDict[w].addEdge(wordDict[e])
 						wordDict[e].addEdge(wordDict[w])
 					edgeDict[whold].append(w)
-	del edgeDict
 	return wordDict
 
 if __name__ == "__main__":
